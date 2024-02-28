@@ -29,12 +29,26 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @php
+                                    $index = ($categories->currentPage() - 1) * $categories->perPage();
+                                @endphp
+                                @forelse ($categories as $category)
+                                    <tr>
+                                        <th scope="row">{{ ++$index }}</th>
+                                        <td>{{ $category->name }}</td>
+                                        <td>
+                                            <a class="btn btn-sm btn-primary text-white mx-2" href="">Edit</a>
+                                            <a class="btn btn-sm btn-danger text-white mx-2" href="">Delete</a>
+                                        </td>
+                                    </tr>
+                                @empty
+                                    <tr>
+                                        <td colspan="3" class="text-center">No Category Data Found</td>
+                                    </tr>
+                                @endforelse
                                 <tr>
-                                    <th scope="row">1</th>
-                                    <td>Mark</td>
-                                    <td>
-                                        <a class="btn btn-sm btn-primary text-white mx-2" href="">Edit</a>
-                                        <a class="btn btn-sm btn-danger text-white mx-2" href="">Delete</a>
+                                    <td class="text-center">
+                                        {{ $categories->links('pagination::bootstrap-4') }}
                                     </td>
                                 </tr>
                             </tbody>
