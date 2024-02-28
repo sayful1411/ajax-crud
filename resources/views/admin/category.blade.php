@@ -28,7 +28,7 @@
                                     <th style="width: 25%" scope="col">Action</th>
                                 </tr>
                             </thead>
-                            <tbody>
+                            <tbody id="tbody">
                                 @php
                                     $index = ($categories->currentPage() - 1) * $categories->perPage();
                                 @endphp
@@ -39,7 +39,8 @@
                                         <td>
                                             <a class="btn btn-sm btn-primary text-white mx-2" href="#"
                                                 onclick="editCategory({{ $category->id }})">Edit</a>
-                                            <a class="btn btn-sm btn-danger text-white mx-2" href="">Delete</a>
+                                            <a class="btn btn-sm btn-danger text-white mx-2" href="#"
+                                                onclick="deleteCategory({{ $category->id }})">Delete</a>
                                         </td>
                                     </tr>
                                 @empty
@@ -47,12 +48,16 @@
                                         <td colspan="3" class="text-center">No Category Data Found</td>
                                     </tr>
                                 @endforelse
-                                <tr>
-                                    <td class="text-center">
-                                        {{ $categories->links('pagination::bootstrap-4') }}
-                                    </td>
-                                </tr>
                             </tbody>
+                            <tfoot>
+                                <div class="text-center">
+                                    <tr>
+                                        <td>
+                                            {{ $categories->links('pagination::bootstrap-4') }}
+                                        </td>
+                                    </tr>
+                                </div>
+                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -64,5 +69,7 @@
     @include('admin.category.create')
 
     @include('admin.category.edit')
+
+    @include('admin.category.delete')
 
 @endsection
