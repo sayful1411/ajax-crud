@@ -25,7 +25,7 @@
                                     <h3 class="text-center font-weight-light my-4">Login</h3>
                                 </div>
                                 <div class="card-body">
-                                    <form method="POST" action="#">
+                                    <form method="POST" action="{{ route('admin.login') }}">
                                         @csrf
 
                                         <div class="form-group mb-3">

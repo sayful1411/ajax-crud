@@ -39,4 +39,13 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });
 
-Route::get('/admin/login', [AdminController::class, 'index'])->name('admin.login');
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'guest:admin'], function () {
+    Route::get('/login', [AdminController::class, 'index'])->name('login');
+    Route::post('/login', [AdminController::class, 'store']);
+});
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth:admin'], function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
+});
