@@ -7,7 +7,7 @@
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
             <div id="validationErrors" class="alert alert-danger" style="display: none;"></div>
-            <form id="categoryForm">
+            <form action="javascript:void(0)" id="createCategoryForm">
                 <div class="modal-body">
                     <div class="form-group">
                         <label for="name" class="mb-2">Name</label>
@@ -16,48 +16,9 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="button" class="btn btn-primary" onclick="createCategory()">Create</button>
+                    <button type="submit" class="btn btn-primary">Create</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
-
-@push('script')
-    <script>
-        // setup csrf token
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
-        // create category
-        function createCategory() {
-            name = $("#name").val();
-
-            $.ajax({
-                method: 'POST',
-                data: {
-                    name: name,
-                },
-                url: "{{ route('admin.category.store') }}",
-                success: function(response) {
-                    $('#categoryModal').modal('hide');
-                    location.reload();
-                },
-                error: function(xhr, status, error) {
-                    if (xhr.status === 422) {
-                        var errors = xhr.responseJSON.errors;
-                        var errorMessage = '';
-                        $.each(errors, function(key, value) {
-                            errorMessage += value[0] + '<br>';
-                        });
-                        $('#validationErrors').html(errorMessage);
-                        $('#validationErrors').show()
-                    }
-                }
-            });
-        }
-    </script>
-@endpush

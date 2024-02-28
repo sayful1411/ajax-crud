@@ -21,31 +21,3 @@
     </div>
 </div>
 
-@push('script')
-    <<script>
-        function deleteCategory(categoryId) {
-            $('#deleteCategoryId').val(categoryId);
-            $('#deleteCategoryModal').modal('show');
-        }
-
-        $('#deleteCategoryForm').submit(function(e) {
-            e.preventDefault();
-
-            categoryId = $('#deleteCategoryId').val();
-            var url = "{{ route('admin.category.destroy', ':categoryId') }}";
-            url = url.replace(':categoryId', categoryId);
-
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                data: {
-                    id: categoryId,
-                },
-                success: function(response) {
-                    $('#deleteCategoryModal').modal('hide');
-                    location.reload();
-                },
-            });
-        });
-    </script>
-@endpush

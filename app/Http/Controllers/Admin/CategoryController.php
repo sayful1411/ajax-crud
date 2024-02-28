@@ -6,17 +6,36 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Yajra\DataTables\Facades\DataTables;
 
 class CategoryController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $categories = Category::latest()->paginate(5);
+        if ($request->ajax()) {
 
-        return view('admin.category', compact('categories'));
+            $categories = Category::latest()->get();
+
+            return Datatables::of($categories)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+
+                    $btn = '<a class="btn btn-sm btn-primary text-white mx-2 editCategory" href="javascript:void(0)"
+                        data-id="' . $row->id . '">Edit</a>';
+
+                    $btn = $btn . '<a class="btn btn-sm btn-danger text-white mx-2 deleteCategory" href="javascript:void(0)"
+                        data-id="' . $row->id . '">Delete</a>';
+
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
+        return view('admin.category');
     }
 
     /**
@@ -24,7 +43,7 @@ class CategoryController extends Controller
      */
     public function create()
     {
-        //
+        abort(404);
     }
 
     /**
@@ -38,8 +57,6 @@ class CategoryController extends Controller
 
         $category = Category::create($validatedData);
 
-        flash()->addSuccess('Category created.');
-
         return response()->json($category);
     }
 
@@ -48,7 +65,7 @@ class CategoryController extends Controller
      */
     public function show(Category $category)
     {
-        //
+        abort(404);
     }
 
     /**
@@ -73,8 +90,6 @@ class CategoryController extends Controller
 
         $category->update($validatedData);
 
-        flash()->addSuccess('Category updated.');
-
         return response()->json($category);
     }
 
@@ -85,11 +100,6 @@ class CategoryController extends Controller
     {
         $category->delete();
 
-        flash()->addSuccess('Category deleted.');
-
-        return response()->json([
-            'id' => $category->id,
-            'message' => 'Category deleted successfully'
-        ]);
+        return response()->json($category);
     }
 }
