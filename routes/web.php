@@ -30,6 +30,10 @@ Route::middleware('guest')->group(function () {
     Route::post('/register', [RegisterController::class, 'store']);
 });
 
-Route::get('/home', function () {
-    return view('home');
-})->middleware('auth')->name('home');
+Route::middleware('auth')->group(function () {
+    Route::get('/home', function () {
+        return view('home');
+    })->name('home');
+
+    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+});
