@@ -16,14 +16,23 @@
         @endif
     </div>
     <div class="col-md-6 mx-auto">
-        <form>
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
+
             <div class="form-group">
                 <label for="email">Email address</label>
-                <input type="email" class="form-control" id="email" name="email" placeholder="Enter email">
+                <input type="email" class="form-control" id="email" name="email" value="{{ old('email') }}"
+                    placeholder="Enter email">
+                @error('email')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
             <div class="form-group">
                 <label for="password">Password</label>
                 <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                @error('password')
+                    <div class="text-danger">{{ $message }}</div>
+                @enderror
             </div>
             <div class="form-group form-check">
                 <input type="checkbox" name="remember" class="form-check-input" id="remember">

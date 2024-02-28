@@ -13,15 +13,23 @@ use Illuminate\Support\Facades\Route;
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "web" middleware group. Make something great!
 |
-*/
+ */
 
 Route::get('/', function () {
     return view('welcome');
 });
 
 // user authentication
-Route::get('/login', [LoginController::class, 'index'])->name('login');
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'index'])->name('login');
 
-Route::get('/register', [RegisterController::class, 'index'])->name('register');
+    Route::post('/login', [LoginController::class, 'store']);
 
-Route::post('/register', [RegisterController::class, 'store']);
+    Route::get('/register', [RegisterController::class, 'index'])->name('register');
+
+    Route::post('/register', [RegisterController::class, 'store']);
+});
+
+Route::get('/home', function () {
+    return view('home');
+})->middleware('auth')->name('home');
