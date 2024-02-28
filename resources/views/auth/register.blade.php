@@ -1,6 +1,6 @@
 @extends('layouts.guest')
 
-@section('title', 'Login | ' . config('app.name'))
+@section('title', 'Register | ' . config('app.name'))
 
 @section('content')
     <div class="col-md-6 mx-auto">

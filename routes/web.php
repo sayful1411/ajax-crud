@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AdminController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
@@ -36,4 +37,17 @@ Route::middleware('auth')->group(function () {
     })->name('home');
 
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
+});
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'guest:admin'], function () {
+    Route::get('/login', [AdminController::class, 'index'])->name('login');
+    Route::post('/login', [AdminController::class, 'store']);
+});
+
+Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth:admin'], function () {
+    Route::get('/dashboard', function () {
+        return view('admin.dashboard');
+    })->name('dashboard');
+
+    Route::post('/logout', [AdminController::class, 'destroy'])->name('logout');
 });
