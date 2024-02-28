@@ -48,4 +48,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth:admin
     Route::get('/dashboard', function () {
         return view('admin.dashboard');
     })->name('dashboard');
+
+    Route::post('/logout', [AdminController::class, 'destroy'])->name('logout');
 });
