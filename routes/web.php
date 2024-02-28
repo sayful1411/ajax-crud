@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -11,8 +13,27 @@ use Illuminate\Support\Facades\Route;
 | routes are loaded by the RouteServiceProvider and all of them will
 | be assigned to the "web" middleware group. Make something great!
 |
-*/
+ */
 
 Route::get('/', function () {
     return view('welcome');
+});
+
+// user authentication
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'index'])->name('login');
+
+    Route::post('/login', [LoginController::class, 'store']);
+
+    Route::get('/register', [RegisterController::class, 'index'])->name('register');
+
+    Route::post('/register', [RegisterController::class, 'store']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/home', function () {
+        return view('home');
+    })->name('home');
+
+    Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });
