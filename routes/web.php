@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\CategoryController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
@@ -39,6 +40,7 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });
 
+// admin authentication
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'guest:admin'], function () {
     Route::get('/login', [AdminController::class, 'index'])->name('login');
     Route::post('/login', [AdminController::class, 'store']);
@@ -50,4 +52,7 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth:admin
     })->name('dashboard');
 
     Route::post('/logout', [AdminController::class, 'destroy'])->name('logout');
+
+    // category
+    Route::resource('/category', CategoryController::class);
 });
