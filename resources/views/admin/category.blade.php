@@ -37,7 +37,8 @@
                                         <th scope="row">{{ ++$index }}</th>
                                         <td>{{ $category->name }}</td>
                                         <td>
-                                            <a class="btn btn-sm btn-primary text-white mx-2" href="">Edit</a>
+                                            <a class="btn btn-sm btn-primary text-white mx-2" href="#"
+                                                onclick="editCategory({{ $category->id }})">Edit</a>
                                             <a class="btn btn-sm btn-danger text-white mx-2" href="">Delete</a>
                                         </td>
                                     </tr>
@@ -62,46 +63,6 @@
 
     @include('admin.category.create')
 
+    @include('admin.category.edit')
 
 @endsection
-
-@push('script')
-    <script src="{{ asset('js/jquery.min.js') }}"></script>
-
-    <script>
-        // setup csrf token
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
-        // create category
-        function createCategory() {
-            name = $("#name").val();
-            console.log(name);
-            $.ajax({
-                method: 'POST',
-                data: {
-                    name: name,
-                },
-                url: "{{ route('admin.category.store') }}",
-                success: function(response) {
-                    $('#categoryModal').modal('hide');
-                    location.reload();
-                },
-                error: function(xhr, status, error) {
-                    if (xhr.status === 422) {
-                        var errors = xhr.responseJSON.errors;
-                        var errorMessage = '';
-                        $.each(errors, function(key, value) {
-                            errorMessage += value[0] + '<br>';
-                        });
-                        $('#validationErrors').html(errorMessage);
-                        $('#validationErrors').show()
-                    }
-                }
-            });
-        }
-    </script>
-@endpush

@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Category;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 
 class CategoryController extends Controller
 {
@@ -55,7 +56,7 @@ class CategoryController extends Controller
      */
     public function edit(Category $category)
     {
-        //
+        return response()->json($category);
     }
 
     /**
@@ -63,7 +64,18 @@ class CategoryController extends Controller
      */
     public function update(Request $request, Category $category)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => [
+                'required',
+                Rule::unique('categories', 'name')->ignore($category->id),
+            ],
+        ]);
+
+        $category->update($validatedData);
+
+        flash()->addSuccess('Category updated.');
+
+        return response()->json($category);
     }
 
     /**
