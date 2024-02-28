@@ -13,7 +13,7 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        //
+        return view('admin.category');
     }
 
     /**
@@ -29,7 +29,15 @@ class CategoryController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $validatedData = $request->validate([
+            'name' => 'required|unique:categories,name',
+        ]);
+
+        $category = Category::create($validatedData);
+
+        flash()->addSuccess('Category created.');
+
+        return response()->json($category);
     }
 
     /**
