@@ -16,10 +16,8 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained();
             $table->string('name')->unique();
             $table->string('slug');
-            $table->string('image');
             $table->bigInteger('price');
             $table->integer('created_by');
-            $table->id();
             $table->timestamps();
         });
     }

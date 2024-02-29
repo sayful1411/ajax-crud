@@ -14,11 +14,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
     <link href="{{ asset('css/styles.css') }}" rel="stylesheet" />
+    <link href="{{ asset('css/loader.css') }}" rel="stylesheet" />
 
     @stack('style')
+
 </head>
 
 <body class="sb-nav-fixed">
+
+    <div class="loading" id="loader" style="display: none"></div>
+    <div class="overlay" style="display: none;"></div>
 
     @include('partials.admin.header')
 
