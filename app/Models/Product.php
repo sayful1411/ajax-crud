@@ -20,4 +20,9 @@ class Product extends Model implements HasMedia
         'price',
         'created_by',
     ];
+
+    public function category()
+    {
+        return $this->belongsTo(Category::class);
+    }
 }

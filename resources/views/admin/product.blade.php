@@ -28,7 +28,7 @@
                                     <th scope="col">Name</th>
                                     <th scope="col">Category</th>
                                     <th scope="col">Price</th>
-                                    <th style="width: 25%" scope="col">Action</th>
+                                    <th style="width: 15%" scope="col">Action</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -73,27 +73,42 @@
             }
         });
 
-        // show category lists
-        // var table = $('.data-table').DataTable({
-        //     processing: true,
-        //     serverSide: true,
-        //     ajax: "{{ route('admin.category.index') }}",
-        //     columns: [{
-        //             data: 'DT_RowIndex',
-        //             name: 'DT_RowIndex'
-        //         },
-        //         {
-        //             data: 'name',
-        //             name: 'name'
-        //         },
-        //         {
-        //             data: 'action',
-        //             name: 'action',
-        //             orderable: false,
-        //             searchable: false
-        //         },
-        //     ]
-        // });
+        // show product lists
+        var table = $('.data-table').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: "{{ route('admin.product.index') }}",
+            columns: [{
+                    data: 'DT_RowIndex',
+                    name: 'DT_RowIndex'
+                },
+                {
+                    data: 'image_url',
+                    name: 'image',
+                    render: function(data, type, full, meta) {
+                        return '<img src="' + data + '" style="max-width: 75px; max-height: 75px;">';
+                    }
+                },
+                {
+                    data: 'name',
+                    name: 'name'
+                },
+                {
+                    data: 'category.name',
+                    name: 'category.name'
+                },
+                {
+                    data: 'price',
+                    name: 'price'
+                },
+                {
+                    data: 'action',
+                    name: 'action',
+                    orderable: false,
+                    searchable: false
+                },
+            ]
+        });
 
         // setup csrf token
         $.ajaxSetup({
@@ -149,7 +164,8 @@
 
                 success: function(response) {
                     $('#createProductForm').trigger("reset");
-                    $('.image-preview img').attr('src', '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
+                    $('.image-preview img').attr('src',
+                        '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
                     $('#loader').hide();
                     $('.overlay').hide();
                     $('#validationErrors').hide()

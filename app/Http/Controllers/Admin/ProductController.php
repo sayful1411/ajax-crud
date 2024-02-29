@@ -9,14 +9,39 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
 {
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
+        if ($request->ajax()) {
+
+            $products = Product::with('category')->latest()->get();
+
+            $products->each(function ($product) {
+                $product->image_url = $product->getFirstMediaUrl('product_image');
+            });
+
+            return Datatables::of($products)
+                ->addIndexColumn()
+                ->addColumn('action', function ($row) {
+
+                    $btn = '<a class="btn btn-sm btn-primary text-white mx-2 editCategory" href="javascript:void(0)"
+                        data-id="' . $row->id . '">Edit</a>';
+
+                    $btn = $btn . '<a class="btn btn-sm btn-danger text-white mx-2 deleteCategory" href="javascript:void(0)"
+                        data-id="' . $row->id . '">Delete</a>';
+
+                    return $btn;
+                })
+                ->rawColumns(['action'])
+                ->make(true);
+        }
+
         return view('admin.product');
     }
 
