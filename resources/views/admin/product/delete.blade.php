@@ -1,15 +1,15 @@
-{{-- create category modal --}}
-<div class="modal fade" id="deleteCategoryModal" tabindex="-1" aria-labelledby="deleteCategoryModalLabel"
+{{-- delete product modal --}}
+<div class="modal fade" id="deleteProductModal" tabindex="-1" aria-labelledby="deleteProductModalLabel"
     aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">
-                <h1 class="modal-title fs-5" id="deleteCategoryModalLabel">Create Category</h1>
+                <h1 class="modal-title fs-5" id="deleteProductModalLabel">Delete Product</h1>
                 <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
             </div>
-            <form id="deleteCategoryForm">
+            <form id="deleteProductForm">
                 <div class="modal-body">
-                    <input type="hidden" id="deleteCategoryId">
+                    <input type="text" id="deleteProductId">
                     <p>Are you sure? Do you really want to delete?</p>
                 </div>
                 <div class="modal-footer">

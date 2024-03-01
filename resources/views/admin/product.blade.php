@@ -329,38 +329,38 @@
             });
 
             // delete product
-            // $('body').on('click', '.deleteproduct', function() {
-            //     var productId = $(this).data('id');
-            //     $('#deleteproductId').val(productId);
-            //     $('#deleteProductModal').modal('show');
-            // });
+            $('body').on('click', '.deleteProduct', function() {
+                var productId = $(this).data('id');
+                $('#deleteProductId').val(productId);
+                $('#deleteProductModal').modal('show');
+            });
 
-            // $('#deleteproductForm').submit(function(e) {
-            //     e.preventDefault();
+            $('#deleteProductForm').submit(function(e) {
+                e.preventDefault();
 
-            //     productId = $('#deleteproductForm').val();
-            //     var url = "{{ route('admin.product.destroy', ':productId') }}";
-            //     url = url.replace(':productId', productId);
+                productId = $('#deleteProductId').val();
+                var url = "{{ route('admin.product.destroy', ':productId') }}";
+                url = url.replace(':productId', productId);
 
-            //     $.ajax({
-            //         url: url,
-            //         type: 'DELETE',
-            //         data: {
-            //             id: productId,
-            //         },
-            //         success: function(response) {
-            //             $('#deleteproductForm').modal('hide');
-            //             table.draw();
-            //             Swal.fire({
-            //                 position: "center",
-            //                 icon: "success",
-            //                 title: "Category Deleted",
-            //                 showConfirmButton: false,
-            //                 timer: 1500
-            //             });
-            //         },
-            //     });
-            // });
+                $.ajax({
+                    url: url,
+                    type: 'DELETE',
+                    data: {
+                        id: productId,
+                    },
+                    success: function(response) {
+                        $('#deleteProductModal').modal('hide');
+                        table.draw();
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: "Category Deleted",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    },
+                });
+            });
 
 
         });
