@@ -31,16 +31,14 @@ The is simple a product curd project using ajax
   php artisan key:generate
   ``` 
   
-  >  step 6: create a new database 
-  
     
-  >  step 7: run migration 
+  >  step 6: run migration 
 
 ```bash
   php artisan migrate --seed (I am used sqlite database. It will ask a prompt to create sqlite database)
   ``` 
   
-  >  step 8: run project
+  >  step 7: run project
   
 ```bash
   php artisan serve
