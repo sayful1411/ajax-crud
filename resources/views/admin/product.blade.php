@@ -138,9 +138,10 @@
                         var categories = response.data;
 
                         categories.forEach(function(category) {
+                            var decodedName = $('<div/>').html(category.name).text();
                             $('#category_id').append($('<option>', {
                                 value: category.id,
-                                text: category.name
+                                text: decodedName
                             }));
                         });
                     },
@@ -227,9 +228,10 @@
                         $('#edit_category_id').find('option').not(':first').remove();
 
                         categories.forEach(function(category) {
+                            var decodedName = $('<div/>').html(category.name).text();
                             $('#edit_category_id').append($('<option>', {
                                 value: category.id,
-                                text: category.name
+                                text: decodedName
                             }));
                         });
                     },
