@@ -35,7 +35,9 @@ class CategoryController extends Controller
                 ->make(true);
         }
 
-        return view('admin.category');
+        $categories = Category::all();
+        
+        return view('admin.category', compact('categories'));
     }
 
     /**

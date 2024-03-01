@@ -10,6 +10,10 @@
                 <div class="sb-nav-link-icon"><i class="fas fa-list"></i></div>
                 Category
             </a>
+            <a class="nav-link" href="{{ route('admin.product.index') }}">
+                <div class="sb-nav-link-icon"><i class="fas fa-cart-shopping"></i></div>
+                Product
+            </a>
         </div>
     </div>
     <div class="sb-sidenav-footer">
