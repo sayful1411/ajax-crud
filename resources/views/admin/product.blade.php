@@ -59,236 +59,310 @@
     <script src="https://cdn.datatables.net/2.0.1/js/dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
-        // image upload preview
-        $('.image-upload-input').change(function() {
-            const file = this.files[0];
-            const previewer = $(this).closest('.image-preview').find('img');
+        $(document).ready(function() {
 
-            if (file) {
-                let reader = new FileReader();
-                reader.onload = function(event) {
-                    previewer.attr('src', event.target.result);
-                }
-                reader.readAsDataURL(file);
-            }
-        });
+            // image upload preview
+            $('.image-upload-input').change(function() {
+                const file = this.files[0];
+                const previewer = $(this).closest('.image-preview').find('img');
 
-        // show product lists
-        var table = $('.data-table').DataTable({
-            processing: true,
-            serverSide: true,
-            ajax: "{{ route('admin.product.index') }}",
-            columns: [{
-                    data: 'DT_RowIndex',
-                    name: 'DT_RowIndex'
-                },
-                {
-                    data: 'image_url',
-                    name: 'image',
-                    render: function(data, type, full, meta) {
-                        return '<img src="' + data + '" style="max-width: 75px; max-height: 75px;">';
+                if (file) {
+                    let reader = new FileReader();
+                    reader.onload = function(event) {
+                        previewer.attr('src', event.target.result);
                     }
-                },
-                {
-                    data: 'name',
-                    name: 'name'
-                },
-                {
-                    data: 'category.name',
-                    name: 'category.name'
-                },
-                {
-                    data: 'price',
-                    name: 'price'
-                },
-                {
-                    data: 'action',
-                    name: 'action',
-                    orderable: false,
-                    searchable: false
-                },
-            ]
-        });
-
-        // setup csrf token
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
-        // create product
-        $('#createProduct').click(function() {
-            $('#createProductForm').trigger("reset");
-            $('#productModalLabel').html("Create Product");
-
-            $.ajax({
-                url: "{{ route('admin.category.index') }}",
-                type: 'GET',
-                dataType: 'json',
-
-                success: function(response) {
-                    var categories = response.data;
-
-                    categories.forEach(function(category) {
-                        $('#category_id').append($('<option>', {
-                            value: category.id,
-                            text: category.name
-                        }));
-                    });
-                },
-
-                error: function(xhr, status, error) {
-                    console.error(error);
+                    reader.readAsDataURL(file);
                 }
             });
 
-            $('#productModal').modal('show');
-        });
+            // show product lists
+            var table = $('.data-table').DataTable({
+                processing: true,
+                serverSide: true,
+                ajax: "{{ route('admin.product.index') }}",
+                columns: [{
+                        data: 'DT_RowIndex',
+                        name: 'DT_RowIndex'
+                    },
+                    {
+                        data: 'image_url',
+                        name: 'image',
+                        render: function(data, type, full, meta) {
+                            return '<img src="' + data +
+                                '" style="max-width: 75px; max-height: 75px;">';
+                        }
+                    },
+                    {
+                        data: 'name',
+                        name: 'name'
+                    },
+                    {
+                        data: 'category.name',
+                        name: 'category.name'
+                    },
+                    {
+                        data: 'price',
+                        name: 'price'
+                    },
+                    {
+                        data: 'action',
+                        name: 'action',
+                        orderable: false,
+                        searchable: false
+                    },
+                ]
+            });
 
-        $('#createProductForm').submit(function(e) {
-            e.preventDefault();
+            // setup csrf token
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
 
-            $('#createProductForm button[type="submit"]').prop('disabled', true);
-            $('#loader').show();
-            $('.overlay').show();
+            // create product
+            $('#createProduct').click(function() {
+                $('#createProductForm').trigger("reset");
+                $('.image-preview img').attr('src',
+                    '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
+                $('#validationErrors').hide();
+                $('#category_id').find('option').not(':first').remove();
+                $('#productModalLabel').html("Create Product");
 
-            var formData = new FormData($(this)[0]);
+                $.ajax({
+                    url: "{{ route('admin.category.index') }}",
+                    type: 'GET',
+                    dataType: 'json',
 
-            $.ajax({
-                method: 'POST',
-                processData: false,
-                contentType: false,
-                data: formData,
-                url: "{{ route('admin.product.store') }}",
+                    success: function(response) {
+                        var categories = response.data;
 
-                success: function(response) {
-                    $('#createProductForm').trigger("reset");
-                    $('.image-preview img').attr('src',
-                        '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
-                    $('#loader').hide();
-                    $('.overlay').hide();
-                    $('#validationErrors').hide()
-                    $('#createProductForm button[type="submit"]').prop('disabled', false);
-                    $('#productModal').modal('hide');
-
-                    // table.draw();
-
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: "Product Created",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                },
-                error: function(xhr, status, error) {
-                    $('#loader').hide();
-                    $('.overlay').hide();
-                    $('#createProductForm button[type="submit"]').prop('disabled', false);
-
-                    if (xhr.status === 422) {
-                        var errors = xhr.responseJSON.errors;
-                        var errorMessage = '';
-                        $.each(errors, function(key, value) {
-                            errorMessage += value[0] + '<br>';
+                        categories.forEach(function(category) {
+                            $('#category_id').append($('<option>', {
+                                value: category.id,
+                                text: category.name
+                            }));
                         });
-                        $('#validationErrors').html(errorMessage);
-                        $('#validationErrors').show()
+                    },
+
+                    error: function(xhr, status, error) {
+                        console.error(error);
                     }
-                }
+                });
+
+                $('#productModal').modal('show');
             });
+
+            $('#saveBtn').click(function(e) {
+                e.preventDefault();
+
+                $('#createProductForm button').prop('disabled', true);
+                $('#loader').show();
+                $('.overlay').show();
+
+                var formData = new FormData();
+                formData.append('category_id', $("#category_id").val());
+                formData.append('name', $("#name").val());
+                formData.append('price', $("#price").val());
+                if ($('#image')[0].files.length > 0) {
+                    formData.append('image', $('#image')[0].files[0]);
+                }
+
+                $.ajax({
+                    method: 'POST',
+                    processData: false,
+                    contentType: false,
+                    data: formData,
+                    url: "{{ route('admin.product.store') }}",
+
+                    success: function(response) {
+                        $('#createProductForm').trigger("reset");
+                        $('.image-preview img').attr('src',
+                            '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
+                        $('#loader').hide();
+                        $('.overlay').hide();
+                        $('#validationErrors').hide();
+                        $('#createProductForm button').prop('disabled', false);
+                        $('#productModal').modal('hide');
+
+                        table.draw();
+
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: "Product Created",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        $('#loader').hide();
+                        $('.overlay').hide();
+                        $('#createProductForm button').prop('disabled', false);
+
+                        if (xhr.status === 422) {
+                            var errors = xhr.responseJSON.errors;
+                            var errorMessage = '';
+                            $.each(errors, function(key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                            $('#validationErrors').html(errorMessage);
+                            $('#validationErrors').show()
+                        }
+                    }
+                });
+            });
+
+            // edit product
+            $('body').on('click', '.editProduct', function() {
+
+                $.ajax({
+                    url: "{{ route('admin.category.index') }}",
+                    type: 'GET',
+                    dataType: 'json',
+
+                    success: function(response) {
+                        var categories = response.data;
+
+                        $('#edit_category_id').find('option').not(':first').remove();
+
+                        categories.forEach(function(category) {
+                            $('#edit_category_id').append($('<option>', {
+                                value: category.id,
+                                text: category.name
+                            }));
+                        });
+                    },
+
+                    error: function(xhr, status, error) {
+                        console.error(error);
+                    }
+                });
+
+                var productId = $(this).data('id');
+                var url = "{{ route('admin.product.edit', ':productId') }}";
+                url = url.replace(':productId', productId);
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    success: function(data) {
+                        console.log(data.category_id);
+                        $('#editProductModalLabel').html("Edit Product");
+                        $('#productId').val(data.id);
+                        $('#edit_category_id').val(data.category_id);
+                        $('#edit_name').val(data.name);
+                        $('#edit_price').val(data.price);
+                        $('.image-preview img').attr('src', data.image_url);
+                        $('#editProductModal').modal('show');
+                    },
+                });
+            });
+
+            $('#editProductForm').submit(function(e) {
+                e.preventDefault();
+
+                productId = $('#productId').val();
+                var url = "{{ route('admin.product.update', ':productId') }}";
+                url = url.replace(':productId', productId);
+
+                $('#editProductForm button').prop('disabled', true);
+                $('#loader').show();
+                $('.overlay').show();
+
+                var editCategoryID = $("#edit_category_id").val();
+                var editName = $("#edit_name").val();
+                var editPrice = $("#edit_price").val();
+                var editImage = $('#edit_image')[0].files[0];
+
+                var editFormData = new FormData();
+                editFormData.append('category_id', editCategoryID);
+                editFormData.append('name', editName);
+                editFormData.append('price', editPrice);
+                if ($('#edit_image')[0].files.length > 0) {
+                    editFormData.append('image', editImage);
+                }
+
+                $.ajax({
+                    method: 'PUT',
+                    url: url,
+                    processData: false,
+                    contentType: false,
+                    dataType: 'json',
+                    data: editFormData,
+                    success: function(response) {
+                        $('#editProductForm').trigger("reset");
+                        $('.image-preview img').attr('src',
+                            '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
+                        $('#loader').hide();
+                        $('.overlay').hide();
+                        $('#editValidationErrors').hide()
+                        $('#editProductForm button').prop('disabled', false);
+                        $('#editProductForm').modal('hide');
+
+                        table.draw();
+
+                        Swal.fire({
+                            position: "center",
+                            icon: "success",
+                            title: "Product Updated",
+                            showConfirmButton: false,
+                            timer: 1500
+                        });
+                    },
+                    error: function(xhr, status, error) {
+                        $('#loader').hide();
+                        $('.overlay').hide();
+                        $('#editProductForm button').prop('disabled', false);
+
+                        if (xhr.status === 422) {
+                            var errors = xhr.responseJSON.errors;
+                            var errorMessage = '';
+                            $.each(errors, function(key, value) {
+                                errorMessage += value[0] + '<br>';
+                            });
+                            $('#editValidationErrors').html(errorMessage);
+                            $('#editValidationErrors').show()
+                        }
+                    }
+                });
+            });
+
+            // delete product
+            // $('body').on('click', '.deleteproduct', function() {
+            //     var productId = $(this).data('id');
+            //     $('#deleteproductId').val(productId);
+            //     $('#deleteProductModal').modal('show');
+            // });
+
+            // $('#deleteproductForm').submit(function(e) {
+            //     e.preventDefault();
+
+            //     productId = $('#deleteproductForm').val();
+            //     var url = "{{ route('admin.product.destroy', ':productId') }}";
+            //     url = url.replace(':productId', productId);
+
+            //     $.ajax({
+            //         url: url,
+            //         type: 'DELETE',
+            //         data: {
+            //             id: productId,
+            //         },
+            //         success: function(response) {
+            //             $('#deleteproductForm').modal('hide');
+            //             table.draw();
+            //             Swal.fire({
+            //                 position: "center",
+            //                 icon: "success",
+            //                 title: "Category Deleted",
+            //                 showConfirmButton: false,
+            //                 timer: 1500
+            //             });
+            //         },
+            //     });
+            // });
+
+
         });
-
-        // edit category
-        // $('body').on('click', '.editCategory', function() {
-        //     var categoryId = $(this).data('id');
-        //     var url = "{{ route('admin.category.edit', ':categoryId') }}";
-        //     url = url.replace(':categoryId', categoryId);
-
-        //     $.ajax({
-        //         url: url,
-        //         type: 'GET',
-        //         success: function(data) {
-        //             $('#categoryId').val(data.id);
-        //             $('#category_name').val(data.name);
-        //             $('#editCategoryModal').modal('show');
-        //         },
-        //     });
-        // });
-
-        // $('#editCategoryForm').submit(function(e) {
-        //     e.preventDefault();
-
-        //     categoryId = $('#categoryId').val();
-        //     name = $('#category_name').val();
-        //     var url = "{{ route('admin.category.update', ':categoryId') }}";
-        //     url = url.replace(':categoryId', categoryId);
-
-        //     $.ajax({
-        //         url: url,
-        //         type: 'PUT',
-        //         data: {
-        //             name: name,
-        //         },
-        //         success: function(response) {
-        //             $('#editCategoryForm').trigger("reset");
-        //             $('#editCategoryModal').modal('hide');
-        //             table.draw();
-        //             Swal.fire({
-        //                 position: "center",
-        //                 icon: "success",
-        //                 title: "Category Updated",
-        //                 showConfirmButton: false,
-        //                 timer: 1500
-        //             });
-        //         },
-        //         error: function(xhr, status, error) {
-        //             if (xhr.status === 422) {
-        //                 var errors = xhr.responseJSON.errors;
-        //                 var errorMessage = '';
-        //                 $.each(errors, function(key, value) {
-        //                     errorMessage += value[0] + '<br>';
-        //                 });
-        //                 $('#updateValidationErrors').html(errorMessage);
-        //                 $('#updateValidationErrors').show()
-        //             }
-        //         }
-        //     });
-        // });
-
-        // delete category
-        // $('body').on('click', '.deleteCategory', function() {
-        //     var categoryId = $(this).data('id');
-        //     $('#deleteCategoryId').val(categoryId);
-        //     $('#deleteCategoryModal').modal('show');
-        // });
-
-        // $('#deleteCategoryForm').submit(function(e) {
-        //     e.preventDefault();
-
-        //     categoryId = $('#deleteCategoryId').val();
-        //     var url = "{{ route('admin.category.destroy', ':categoryId') }}";
-        //     url = url.replace(':categoryId', categoryId);
-
-        //     $.ajax({
-        //         url: url,
-        //         type: 'DELETE',
-        //         data: {
-        //             id: categoryId,
-        //         },
-        //         success: function(response) {
-        //             $('#deleteCategoryModal').modal('hide');
-        //             table.draw();
-        //             Swal.fire({
-        //                 position: "center",
-        //                 icon: "success",
-        //                 title: "Category Deleted",
-        //                 showConfirmButton: false,
-        //                 timer: 1500
-        //             });
-        //         },
-        //     });
-        // });
     </script>
 @endpush

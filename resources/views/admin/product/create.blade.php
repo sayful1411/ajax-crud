@@ -13,7 +13,7 @@
             <form action="javascript:void(0)" id="createProductForm" enctype="multipart/form-data">
                 <div class="modal-body">
 
-                    <input type="hidden" id="productId">
+                    {{-- <input type="text" id="productId"> --}}
 
                     <div class="form-group mb-3">
                         <label for="category_id" class="mb-2">Category:</label>
@@ -44,7 +44,8 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Create</button>
+                    <button type="button" id="saveBtn" class="btn btn-primary">Save</button>
+                    {{-- <button type="button" id="updateBtn" class="btn btn-primary">Update</button> --}}
                 </div>
             </form>
 

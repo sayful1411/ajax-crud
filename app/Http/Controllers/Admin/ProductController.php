@@ -2,14 +2,15 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Admin\StoreProductRequest;
-use App\Models\Category;
 use App\Models\Product;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Str;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use Yajra\DataTables\Facades\DataTables;
+use App\Http\Requests\Admin\StoreProductRequest;
+use App\Http\Requests\Admin\UpdateProductRequest;
 
 class ProductController extends Controller
 {
@@ -30,11 +31,11 @@ class ProductController extends Controller
                 ->addIndexColumn()
                 ->addColumn('action', function ($row) {
 
-                    $btn = '<a class="btn btn-sm btn-primary text-white mx-2 editCategory" href="javascript:void(0)"
-                        data-id="' . $row->id . '">Edit</a>';
+                    $btn = '<button class="btn btn-sm btn-primary text-white mx-2 editProduct"
+                        data-id="' . $row->id . '">Edit</button>';
 
-                    $btn = $btn . '<a class="btn btn-sm btn-danger text-white mx-2 deleteCategory" href="javascript:void(0)"
-                        data-id="' . $row->id . '">Delete</a>';
+                    $btn = $btn . '<button class="btn btn-sm btn-danger text-white mx-2 deleteProduct"
+                        data-id="' . $row->id . '">Delete</button>';
 
                     return $btn;
                 })
@@ -82,31 +83,58 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Category $category)
+    public function show(Product $product)
     {
-        //
+        abort(404);
     }
 
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Category $category)
+    public function edit(Request $request, Product $product)
     {
-        //
+        if ($request->ajax()) {
+            $product->image_url = $product->getFirstMediaUrl('product_image');
+
+            return response()->json($product);
+        }
+
+        return view('admin.product.edit', $product);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Category $category)
+    public function update(UpdateProductRequest $request, Product $product)
     {
-        //
+        // Log::info('Request Data:', $request->all());
+        $validatedData = $request->validated();
+
+        $validatedData['slug'] = Str::slug($validatedData['name']);
+        $validatedData['created_by'] = Auth::id();
+
+        $imageName = null;
+
+        if ($request->hasFile('image')) {
+            $image = $request->file('image');
+            $extension = $image->getClientOriginalExtension();
+            $imageName = 'product-image' . md5(uniqid()) . time() . '.' . $extension;
+        }
+
+        $product->update($validatedData);
+
+        if ($imageName) {
+            $product->clearMediaCollection('product_image');
+            $product->addMediaFromRequest('image')->usingFileName($imageName)->toMediaCollection('product_image');
+        }
+
+        return response()->json($product);
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Category $category)
+    public function destroy(Product $product)
     {
         //
     }
