@@ -2,15 +2,14 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Product;
-use Illuminate\Support\Str;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Auth;
-use Yajra\DataTables\Facades\DataTables;
 use App\Http\Requests\Admin\StoreProductRequest;
 use App\Http\Requests\Admin\UpdateProductRequest;
+use App\Models\Product;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Yajra\DataTables\Facades\DataTables;
 
 class ProductController extends Controller
 {
@@ -93,13 +92,9 @@ class ProductController extends Controller
      */
     public function edit(Request $request, Product $product)
     {
-        if ($request->ajax()) {
-            $product->image_url = $product->getFirstMediaUrl('product_image');
+        $product->image_url = $product->getFirstMediaUrl('product_image');
 
-            return response()->json($product);
-        }
-
-        return view('admin.product.edit', $product);
+        return response()->json($product);
     }
 
     /**
@@ -107,7 +102,6 @@ class ProductController extends Controller
      */
     public function update(UpdateProductRequest $request, Product $product)
     {
-        // Log::info('Request Data:', $request->all());
         $validatedData = $request->validated();
 
         $validatedData['slug'] = Str::slug($validatedData['name']);
