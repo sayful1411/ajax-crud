@@ -1,4 +1,4 @@
-{{-- create product modal --}}
+{{-- edit product modal --}}
 <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel" aria-hidden="true">
     <div class="modal-dialog">
         <div class="modal-content">

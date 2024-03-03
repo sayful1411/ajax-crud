@@ -9,7 +9,7 @@
             </div>
             <form id="deleteProductForm">
                 <div class="modal-body">
-                    <input type="text" id="deleteProductId">
+                    <input type="hidden" id="deleteProductId">
                     <p>Are you sure? Do you really want to delete?</p>
                 </div>
                 <div class="modal-footer">

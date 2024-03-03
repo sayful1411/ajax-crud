@@ -7,22 +7,16 @@ use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
 use Illuminate\Support\Facades\Route;
 
-/*
-|--------------------------------------------------------------------------
-| Web Routes
-|--------------------------------------------------------------------------
-|
-| Here is where you can register web routes for your application. These
-| routes are loaded by the RouteServiceProvider and all of them will
-| be assigned to the "web" middleware group. Make something great!
-|
- */
-
 Route::get('/', function () {
     return view('welcome');
 });
 
-// user authentication
+/*
+|--------------------------------------------------------------------------
+| user authentication
+|--------------------------------------------------------------------------
+|
+*/
 Route::middleware('guest')->group(function () {
     Route::get('/login', [LoginController::class, 'index'])->name('login');
 
@@ -41,7 +35,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/logout', [LoginController::class, 'destroy'])->name('logout');
 });
 
-// admin authentication
+/*
+|--------------------------------------------------------------------------
+| admin authentication
+|--------------------------------------------------------------------------
+|
+*/
 Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'guest:admin'], function () {
     Route::get('/login', [AdminController::class, 'index'])->name('login');
     Route::post('/login', [AdminController::class, 'store']);
@@ -58,5 +57,6 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth:admin
     Route::resource('/category', CategoryController::class);
     
     // product
-    Route::resource('/product', ProductController::class);
+    Route::post('/product/{product}', [ProductController::class, 'update'])->name('product.update');
+    Route::resource('/product', ProductController::class)->except('update');
 });

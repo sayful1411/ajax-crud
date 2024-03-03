@@ -3,7 +3,11 @@
 
 The is simple a product curd project using ajax
 
+# Admin Authenticate -
 
+>    email: admin@gmail.com
+
+>password: password
 
 # How you setup and run this project -
 

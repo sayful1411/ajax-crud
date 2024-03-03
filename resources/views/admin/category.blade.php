@@ -29,35 +29,8 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                {{-- @php
-                                    $index = ($categories->currentPage() - 1) * $categories->perPage();
-                                @endphp
-                                @forelse ($categories as $category)
-                                    <tr>
-                                        <th scope="row">{{ ++$index }}</th>
-                                        <td>{{ $category->name }}</td>
-                                        <td>
-                                            <a class="btn btn-sm btn-primary text-white mx-2" href="#"
-                                                onclick="editCategory({{ $category->id }})">Edit</a>
-                                            <a class="btn btn-sm btn-danger text-white mx-2" href="#"
-                                                onclick="deleteCategory({{ $category->id }})">Delete</a>
-                                        </td>
-                                    </tr>
-                                @empty
-                                    <tr>
-                                        <td colspan="3" class="text-center">No Category Data Found</td>
-                                    </tr>
-                                @endforelse --}}
+
                             </tbody>
-                            {{-- <tfoot>
-                                <div class="text-center">
-                                    <tr>
-                                        <td>
-                                            {{ $categories->links('pagination::bootstrap-4') }}
-                                        </td>
-                                    </tr>
-                                </div> --}}
-                            </tfoot>
                         </table>
                     </div>
                 </div>
@@ -82,6 +55,13 @@
     <script src="https://cdn.datatables.net/2.0.1/js/dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script>
+        // setup csrf token
+        $.ajaxSetup({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            }
+        });
+
         // show category lists
         var table = $('.data-table').DataTable({
             processing: true,
@@ -104,36 +84,32 @@
             ]
         });
 
-        // setup csrf token
-        $.ajaxSetup({
-            headers: {
-                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-            }
-        });
-
         // create category
         $('#createCategory').click(function() {
             $('#createCategoryForm').trigger("reset");
+            $('#validationErrors').hide();
             $('#categoryModal').modal('show');
         });
 
         $('#createCategoryForm').submit(function(e) {
             e.preventDefault();
 
-            name = $("#name").val();
-            console.log(name);
+            var name = $("#name").val();
 
             $.ajax({
                 method: 'POST',
+                url: "{{ route('admin.category.store') }}",
                 data: {
                     name: name,
                 },
-                url: "{{ route('admin.category.store') }}",
                 success: function(response) {
+                    $('#createCategoryForm').trigger("reset");
+                    $('#validationErrors').hide();
                     $('#categoryModal').modal('hide');
                     table.draw();
+
                     Swal.fire({
-                        position: "top-center",
+                        position: "center",
                         icon: "success",
                         title: "Category Created",
                         showConfirmButton: false,
@@ -144,11 +120,13 @@
                     if (xhr.status === 422) {
                         var errors = xhr.responseJSON.errors;
                         var errorMessage = '';
+
                         $.each(errors, function(key, value) {
                             errorMessage += value[0] + '<br>';
                         });
+
                         $('#validationErrors').html(errorMessage);
-                        $('#validationErrors').show()
+                        $('#validationErrors').show();
                     }
                 }
             });
@@ -157,8 +135,8 @@
         // edit category
         $('body').on('click', '.editCategory', function() {
             var categoryId = $(this).data('id');
-            var url = "{{ route('admin.category.edit', ':categoryId') }}";
-            url = url.replace(':categoryId', categoryId);
+            var url = "{{ route('admin.category.edit', ':category') }}";
+            var url = url.replace(':category', categoryId);
 
             $.ajax({
                 url: url,
@@ -166,6 +144,7 @@
                 success: function(data) {
                     $('#categoryId').val(data.id);
                     $('#category_name').val(data.name);
+                    $('#updateValidationErrors').hide();
                     $('#editCategoryModal').modal('show');
                 },
             });
@@ -174,10 +153,10 @@
         $('#editCategoryForm').submit(function(e) {
             e.preventDefault();
 
-            categoryId = $('#categoryId').val();
-            name = $('#category_name').val();
+            var categoryId = $('#categoryId').val();
+            var name = $('#category_name').val();
             var url = "{{ route('admin.category.update', ':categoryId') }}";
-            url = url.replace(':categoryId', categoryId);
+            var url = url.replace(':categoryId', categoryId);
 
             $.ajax({
                 url: url,
@@ -187,10 +166,12 @@
                 },
                 success: function(response) {
                     $('#editCategoryForm').trigger("reset");
+                    $('#updateValidationErrors').hide();
                     $('#editCategoryModal').modal('hide');
                     table.draw();
+
                     Swal.fire({
-                        position: "top-center",
+                        position: "center",
                         icon: "success",
                         title: "Category Updated",
                         showConfirmButton: false,
@@ -201,11 +182,13 @@
                     if (xhr.status === 422) {
                         var errors = xhr.responseJSON.errors;
                         var errorMessage = '';
+
                         $.each(errors, function(key, value) {
                             errorMessage += value[0] + '<br>';
                         });
+
                         $('#updateValidationErrors').html(errorMessage);
-                        $('#updateValidationErrors').show()
+                        $('#updateValidationErrors').show();
                     }
                 }
             });
@@ -221,9 +204,9 @@
         $('#deleteCategoryForm').submit(function(e) {
             e.preventDefault();
 
-            categoryId = $('#deleteCategoryId').val();
-            var url = "{{ route('admin.category.destroy', ':categoryId') }}";
-            url = url.replace(':categoryId', categoryId);
+            var categoryId = $('#deleteCategoryId').val();
+            var url = "{{ route('admin.category.destroy', ':category') }}";
+            var url = url.replace(':category', categoryId);
 
             $.ajax({
                 url: url,
@@ -234,8 +217,9 @@
                 success: function(response) {
                     $('#deleteCategoryModal').modal('hide');
                     table.draw();
+
                     Swal.fire({
-                        position: "top-center",
+                        position: "center",
                         icon: "success",
                         title: "Category Deleted",
                         showConfirmButton: false,
