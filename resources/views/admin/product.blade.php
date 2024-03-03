@@ -61,6 +61,13 @@
     <script>
         $(document).ready(function() {
 
+            // setup csrf token
+            $.ajaxSetup({
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                }
+            });
+
             // image upload preview
             $('.image-upload-input').change(function() {
                 const file = this.files[0];
@@ -113,13 +120,6 @@
                 ]
             });
 
-            // setup csrf token
-            $.ajaxSetup({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                }
-            });
-
             // create product
             $('#createProduct').click(function() {
                 $('#createProductForm').trigger("reset");
@@ -130,8 +130,8 @@
                 $('#productModalLabel').html("Create Product");
 
                 $.ajax({
-                    url: "{{ route('admin.category.index') }}",
                     type: 'GET',
+                    url: "{{ route('admin.category.index') }}",
                     dataType: 'json',
 
                     success: function(response) {
@@ -139,6 +139,7 @@
 
                         categories.forEach(function(category) {
                             var decodedName = $('<div/>').html(category.name).text();
+
                             $('#category_id').append($('<option>', {
                                 value: category.id,
                                 text: decodedName
@@ -151,6 +152,7 @@
                     }
                 });
 
+                $('#validationErrors').hide();
                 $('#productModal').modal('show');
             });
 
@@ -171,10 +173,10 @@
 
                 $.ajax({
                     method: 'POST',
+                    url: "{{ route('admin.product.store') }}",
                     processData: false,
                     contentType: false,
                     data: formData,
-                    url: "{{ route('admin.product.store') }}",
 
                     success: function(response) {
                         $('#createProductForm').trigger("reset");
@@ -204,11 +206,13 @@
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             var errorMessage = '';
+
                             $.each(errors, function(key, value) {
                                 errorMessage += value[0] + '<br>';
                             });
+
                             $('#validationErrors').html(errorMessage);
-                            $('#validationErrors').show()
+                            $('#validationErrors').show();
                         }
                     }
                 });
@@ -218,8 +222,8 @@
             $('body').on('click', '.editProduct', function() {
 
                 $.ajax({
-                    url: "{{ route('admin.category.index') }}",
                     type: 'GET',
+                    url: "{{ route('admin.category.index') }}",
                     dataType: 'json',
 
                     success: function(response) {
@@ -229,6 +233,7 @@
 
                         categories.forEach(function(category) {
                             var decodedName = $('<div/>').html(category.name).text();
+
                             $('#edit_category_id').append($('<option>', {
                                 value: category.id,
                                 text: decodedName
@@ -243,11 +248,11 @@
 
                 var productId = $(this).data('id');
                 var url = "{{ route('admin.product.edit', ':product') }}";
-                url = url.replace(':product', productId);
+                var url = url.replace(':product', productId);
 
                 $.ajax({
-                    url: url,
                     type: 'GET',
+                    url: url,
                     success: function(data) {
                         $('#editProductModalLabel').html("Edit Product");
                         $('#productId').val(data.id);
@@ -255,6 +260,7 @@
                         $('#edit_name').val(data.name);
                         $('#edit_price').val(data.price);
                         $('.image-preview img').attr('src', data.image_url);
+                        $('#editValidationErrors').hide();
                         $('#editProductModal').modal('show');
                     },
                 });
@@ -265,7 +271,7 @@
 
                 productId = $('#productId').val();
                 var url = "{{ route('admin.product.update', ':product') }}";
-                url = url.replace(':product', productId);
+                var url = url.replace(':product', productId);
 
                 $('#editProductForm button').prop('disabled', true);
                 $('#loader').show();
@@ -291,7 +297,7 @@
                             '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
                         $('#loader').hide();
                         $('.overlay').hide();
-                        $('#editValidationErrors').hide()
+                        $('#editValidationErrors').hide();
                         $('#editProductForm button').prop('disabled', false);
                         $('#editProductModal').modal('hide');
 
@@ -313,9 +319,11 @@
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
                             var errorMessage = '';
+
                             $.each(errors, function(key, value) {
                                 errorMessage += value[0] + '<br>';
                             });
+
                             $('#editValidationErrors').html(errorMessage);
                             $('#editValidationErrors').show()
                         }
@@ -334,8 +342,8 @@
                 e.preventDefault();
 
                 productId = $('#deleteProductId').val();
-                var url = "{{ route('admin.product.destroy', ':productId') }}";
-                url = url.replace(':productId', productId);
+                var url = "{{ route('admin.product.destroy', ':product') }}";
+                var url = url.replace(':product', productId);
 
                 $.ajax({
                     url: url,
@@ -346,10 +354,11 @@
                     success: function(response) {
                         $('#deleteProductModal').modal('hide');
                         table.draw();
+
                         Swal.fire({
                             position: "center",
                             icon: "success",
-                            title: "Category Deleted",
+                            title: "Product Deleted",
                             showConfirmButton: false,
                             timer: 1500
                         });

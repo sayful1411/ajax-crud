@@ -13,8 +13,6 @@
             <form action="javascript:void(0)" id="createProductForm" enctype="multipart/form-data">
                 <div class="modal-body">
 
-                    {{-- <input type="text" id="productId"> --}}
-
                     <div class="form-group mb-3">
                         <label for="category_id" class="mb-2">Category:</label>
                         <select class="form-control" name="category_id" id="category_id">
@@ -45,7 +43,6 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     <button type="button" id="saveBtn" class="btn btn-primary">Save</button>
-                    {{-- <button type="button" id="updateBtn" class="btn btn-primary">Update</button> --}}
                 </div>
             </form>
 

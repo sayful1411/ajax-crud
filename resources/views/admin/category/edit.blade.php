@@ -4,7 +4,6 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <form id="editCategoryForm">
-
                 <div class="modal-header">
                     <h5 class="modal-title" id="editCategoryModalLabel">Edit Category</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
