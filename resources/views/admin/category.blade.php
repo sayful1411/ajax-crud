@@ -39,11 +39,35 @@
         </div>
     </div>
 
-    @include('admin.category.create')
+    <div class="modal fade" id="categoryModal" tabindex="-1" aria-labelledby="categoryModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="categoryModalLabel"></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form action="javascript:void(0)" id="categoryForm">
 
-    @include('admin.category.edit')
+                    <div id="validationErrors" class="alert alert-danger" style="display: none;"></div>
 
-    @include('admin.category.delete')
+                    <input type="hidden" id="categoryId">
+
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <label for="name" class="mb-2">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Name">
+                        </div>
+                    </div>
+
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="createBtn" style="display: none;">Create</button>
+                        <button type="button" class="btn btn-primary" id="updateBtn" style="display: none;">Update</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
 
 @endsection
 
@@ -86,26 +110,29 @@
 
         // create category
         $('#createCategory').click(function() {
-            $('#createCategoryForm').trigger("reset");
+            $('#categoryModalLabel').html('Create Category');
+            $('#categoryForm').trigger("reset");
             $('#validationErrors').hide();
+            $('#createBtn').show();
             $('#categoryModal').modal('show');
         });
 
-        $('#createCategoryForm').submit(function(e) {
+        $('#createBtn').click(function(e) {
             e.preventDefault();
 
-            var name = $("#name").val();
+            var formData = new FormData($('#categoryForm')[0]);
 
             $.ajax({
                 method: 'POST',
                 url: "{{ route('admin.category.store') }}",
-                data: {
-                    name: name,
-                },
+                processData: false,
+                contentType: false,
+                data: formData,
                 success: function(response) {
-                    $('#createCategoryForm').trigger("reset");
+                    $('#categoryForm').trigger("reset");
                     $('#validationErrors').hide();
                     $('#categoryModal').modal('hide');
+
                     table.draw();
 
                     Swal.fire({
@@ -139,35 +166,39 @@
             var url = url.replace(':category', categoryId);
 
             $.ajax({
+                method: 'GET',
                 url: url,
-                type: 'GET',
                 success: function(data) {
                     $('#categoryId').val(data.id);
-                    $('#category_name').val(data.name);
-                    $('#updateValidationErrors').hide();
-                    $('#editCategoryModal').modal('show');
+                    $('#name').val(data.name);
+                    $('#categoryModalLabel').html('Update Category');
+                    $('#validationErrors').hide();
+                    $('#updateBtn').show();
+                    $('#categoryModal').modal('show');
                 },
             });
         });
 
-        $('#editCategoryForm').submit(function(e) {
+        $('#updateBtn').click(function(e) {
             e.preventDefault();
 
             var categoryId = $('#categoryId').val();
-            var name = $('#category_name').val();
             var url = "{{ route('admin.category.update', ':categoryId') }}";
             var url = url.replace(':categoryId', categoryId);
 
+            var formData = new FormData($('#categoryForm')[0]);
+            formData.append('_method', 'PUT');
+
             $.ajax({
+                method: 'POST',
                 url: url,
-                type: 'PUT',
-                data: {
-                    name: name,
-                },
+                processData: false,
+                contentType: false,
+                data: formData,
                 success: function(response) {
-                    $('#editCategoryForm').trigger("reset");
-                    $('#updateValidationErrors').hide();
-                    $('#editCategoryModal').modal('hide');
+                    $('#validationErrors').hide();
+                    $('#categoryModal').modal('hide');
+                    
                     table.draw();
 
                     Swal.fire({
@@ -187,46 +218,54 @@
                             errorMessage += value[0] + '<br>';
                         });
 
-                        $('#updateValidationErrors').html(errorMessage);
-                        $('#updateValidationErrors').show();
+                        $('#validationErrors').html(errorMessage);
+                        $('#validationErrors').show();
                     }
                 }
             });
         });
 
         // delete category
-        $('body').on('click', '.deleteCategory', function() {
+        $('body').on('click', '.deleteCategory', function(e) {
             var categoryId = $(this).data('id');
-            $('#deleteCategoryId').val(categoryId);
-            $('#deleteCategoryModal').modal('show');
-        });
-
-        $('#deleteCategoryForm').submit(function(e) {
+            SwalDelete(categoryId);
             e.preventDefault();
-
-            var categoryId = $('#deleteCategoryId').val();
-            var url = "{{ route('admin.category.destroy', ':category') }}";
-            var url = url.replace(':category', categoryId);
-
-            $.ajax({
-                url: url,
-                type: 'DELETE',
-                data: {
-                    id: categoryId,
-                },
-                success: function(response) {
-                    $('#deleteCategoryModal').modal('hide');
-                    table.draw();
-
-                    Swal.fire({
-                        position: "center",
-                        icon: "success",
-                        title: "Category Deleted",
-                        showConfirmButton: false,
-                        timer: 1500
-                    });
-                },
-            });
         });
+
+        function SwalDelete(categoryId) {
+            Swal.fire({
+                title: "Are you sure?",
+                text: "You won't be able to revert this!",
+                icon: "warning",
+                showCancelButton: true,
+                confirmButtonColor: "#3085d6",
+                cancelButtonColor: "#d33",
+                confirmButtonText: "Yes, delete it!"
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    var url = "{{ route('admin.category.destroy', ':category') }}";
+                    var url = url.replace(':category', categoryId);
+
+                    $.ajax({
+                        url: url,
+                        type: 'DELETE',
+                        data: {
+                            id: categoryId,
+                        },
+                        success: function(response) {
+                            table.draw();
+
+                            Swal.fire({
+                                position: "center",
+                                icon: "success",
+                                title: "Category Deleted",
+                                showConfirmButton: false,
+                                timer: 1500
+                            });
+                        },
+                    });
+                }
+            });
+        }
     </script>
 @endpush
