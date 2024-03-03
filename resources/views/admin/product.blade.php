@@ -242,14 +242,13 @@
                 });
 
                 var productId = $(this).data('id');
-                var url = "{{ route('admin.product.edit', ':productId') }}";
-                url = url.replace(':productId', productId);
+                var url = "{{ route('admin.product.edit', ':product') }}";
+                url = url.replace(':product', productId);
 
                 $.ajax({
                     url: url,
                     type: 'GET',
                     success: function(data) {
-                        console.log(data.category_id);
                         $('#editProductModalLabel').html("Edit Product");
                         $('#productId').val(data.id);
                         $('#edit_category_id').val(data.category_id);
@@ -265,32 +264,26 @@
                 e.preventDefault();
 
                 productId = $('#productId').val();
-                var url = "{{ route('admin.product.update', ':productId') }}";
-                url = url.replace(':productId', productId);
+                var url = "{{ route('admin.product.update', ':product') }}";
+                url = url.replace(':product', productId);
 
                 $('#editProductForm button').prop('disabled', true);
                 $('#loader').show();
                 $('.overlay').show();
 
-                var editCategoryID = $("#edit_category_id").val();
-                var editName = $("#edit_name").val();
-                var editPrice = $("#edit_price").val();
-                var editImage = $('#edit_image')[0].files[0];
-
                 var editFormData = new FormData();
-                editFormData.append('category_id', editCategoryID);
-                editFormData.append('name', editName);
-                editFormData.append('price', editPrice);
+                editFormData.append('category_id', $("#edit_category_id").val());
+                editFormData.append('name', $("#edit_name").val());
+                editFormData.append('price', $("#edit_price").val());
                 if ($('#edit_image')[0].files.length > 0) {
-                    editFormData.append('image', editImage);
+                    editFormData.append('image', $('#edit_image')[0].files[0]);
                 }
 
                 $.ajax({
-                    method: 'PUT',
+                    method: 'POST',
                     url: url,
                     processData: false,
                     contentType: false,
-                    dataType: 'json',
                     data: editFormData,
                     success: function(response) {
                         $('#editProductForm').trigger("reset");
@@ -300,7 +293,7 @@
                         $('.overlay').hide();
                         $('#editValidationErrors').hide()
                         $('#editProductForm button').prop('disabled', false);
-                        $('#editProductForm').modal('hide');
+                        $('#editProductModal').modal('hide');
 
                         table.draw();
 
