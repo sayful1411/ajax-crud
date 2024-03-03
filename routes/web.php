@@ -57,6 +57,5 @@ Route::group(['prefix' => 'admin', 'as' => 'admin.', 'middleware' => 'auth:admin
     Route::resource('/category', CategoryController::class);
     
     // product
-    Route::post('/product/{product}', [ProductController::class, 'update'])->name('product.update');
-    Route::resource('/product', ProductController::class)->except('update');
+    Route::resource('/product', ProductController::class);
 });

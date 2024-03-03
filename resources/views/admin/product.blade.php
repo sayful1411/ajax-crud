@@ -43,11 +43,60 @@
         </div>
     </div>
 
-    @include('admin.product.create')
+    <div class="modal fade" id="productModal" tabindex="-1" aria-labelledby="productModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
 
-    @include('admin.product.edit')
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="productModalLabel"></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
-    @include('admin.product.delete')
+                <div id="validationErrors" class="alert alert-danger" style="display: none;"></div>
+
+                <form action="javascript:void(0)" id="productForm" enctype="multipart/form-data">
+                    <div class="modal-body">
+
+                        <input type="hidden" id="productId" name="productId">
+
+                        <div class="form-group mb-3">
+                            <label for="category_id" class="mb-2">Category:</label>
+                            <select class="form-control" name="category_id" id="category_id">
+                                <option value="">Select Category</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="name" class="mb-2">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Name">
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label for="price" class="mb-2">Price</label>
+                            <input type="text" class="form-control" id="price" name="price" placeholder="Price">
+                        </div>
+
+                        <div class="d-flex flex-column form-group mb-3 image-preview">
+                            <label class="leading-loose">Image</label>
+                            <div for="image" class="d-flex align-items-center justify-content-center mb-2">
+                                <img style="width: 24rem; height: 18rem;" class="object-fit-cover rounded"
+                                    src="{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}" alt="">
+                            </div>
+                            <input name="image" id="image" type="file" class="image-upload-input" placeholder="">
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="button" class="btn btn-primary" id="createBtn" style="display: none;">Create</button>
+                        <button type="button" class="btn btn-primary" id="updateBtn" style="display: none;">Update</button>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+    </div>
+
 
 @endsection
 
@@ -120,17 +169,10 @@
                 ]
             });
 
-            // create product
-            $('#createProduct').click(function() {
-                $('#createProductForm').trigger("reset");
-                $('.image-preview img').attr('src',
-                    '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
-                $('#validationErrors').hide();
-                $('#category_id').find('option').not(':first').remove();
-                $('#productModalLabel').html("Create Product");
-
+            // category lists
+            function getCategoryList() {
                 $.ajax({
-                    type: 'GET',
+                    method: 'GET',
                     url: "{{ route('admin.category.index') }}",
                     dataType: 'json',
 
@@ -151,15 +193,25 @@
                         console.error(error);
                     }
                 });
+            }
 
+            // create product
+            $('#createProduct').click(function() {
+                $('#productModalLabel').html("Create Product");
                 $('#validationErrors').hide();
+                $('#productForm').trigger("reset");
+                $('#category_id').find('option').not(':first').remove();
+                $('.image-preview img').attr('src',
+                    '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
+                getCategoryList();
+                $('#createBtn').show();
                 $('#productModal').modal('show');
             });
 
-            $('#saveBtn').click(function(e) {
+            $('#createBtn').click(function(e) {
                 e.preventDefault();
 
-                $('#createProductForm button').prop('disabled', true);
+                $('#productForm button').prop('disabled', true);
                 $('#loader').show();
                 $('.overlay').show();
 
@@ -179,13 +231,9 @@
                     data: formData,
 
                     success: function(response) {
-                        $('#createProductForm').trigger("reset");
-                        $('.image-preview img').attr('src',
-                            '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
                         $('#loader').hide();
                         $('.overlay').hide();
-                        $('#validationErrors').hide();
-                        $('#createProductForm button').prop('disabled', false);
+                        $('#productForm button').prop('disabled', false);
                         $('#productModal').modal('hide');
 
                         table.draw();
@@ -201,7 +249,7 @@
                     error: function(xhr, status, error) {
                         $('#loader').hide();
                         $('.overlay').hide();
-                        $('#createProductForm button').prop('disabled', false);
+                        $('#productForm button').prop('disabled', false);
 
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
@@ -220,69 +268,48 @@
 
             // edit product
             $('body').on('click', '.editProduct', function() {
-
-                $.ajax({
-                    type: 'GET',
-                    url: "{{ route('admin.category.index') }}",
-                    dataType: 'json',
-
-                    success: function(response) {
-                        var categories = response.data;
-
-                        $('#edit_category_id').find('option').not(':first').remove();
-
-                        categories.forEach(function(category) {
-                            var decodedName = $('<div/>').html(category.name).text();
-
-                            $('#edit_category_id').append($('<option>', {
-                                value: category.id,
-                                text: decodedName
-                            }));
-                        });
-                    },
-
-                    error: function(xhr, status, error) {
-                        console.error(error);
-                    }
-                });
+                $('#category_id').find('option').not(':first').remove();
+                getCategoryList();
 
                 var productId = $(this).data('id');
                 var url = "{{ route('admin.product.edit', ':product') }}";
                 var url = url.replace(':product', productId);
 
                 $.ajax({
-                    type: 'GET',
+                    method: 'GET',
                     url: url,
                     success: function(data) {
-                        $('#editProductModalLabel').html("Edit Product");
+                        $('#productModalLabel').html("Edit Product");
+                        $('#validationErrors').hide();
                         $('#productId').val(data.id);
-                        $('#edit_category_id').val(data.category_id);
-                        $('#edit_name').val(data.name);
-                        $('#edit_price').val(data.price);
+                        $('#category_id').val(data.category_id);
+                        $('#name').val(data.name);
+                        $('#price').val(data.price);
                         $('.image-preview img').attr('src', data.image_url);
-                        $('#editValidationErrors').hide();
-                        $('#editProductModal').modal('show');
+                        $('#updateBtn').show();
+                        $('#productModal').modal('show');
                     },
                 });
             });
 
-            $('#editProductForm').submit(function(e) {
+            $('#updateBtn').click(function(e) {
                 e.preventDefault();
 
                 productId = $('#productId').val();
                 var url = "{{ route('admin.product.update', ':product') }}";
                 var url = url.replace(':product', productId);
 
-                $('#editProductForm button').prop('disabled', true);
+                $('#productForm button').prop('disabled', true);
                 $('#loader').show();
                 $('.overlay').show();
 
-                var editFormData = new FormData();
-                editFormData.append('category_id', $("#edit_category_id").val());
-                editFormData.append('name', $("#edit_name").val());
-                editFormData.append('price', $("#edit_price").val());
-                if ($('#edit_image')[0].files.length > 0) {
-                    editFormData.append('image', $('#edit_image')[0].files[0]);
+                var formData = new FormData();
+                formData.append('_method', 'PUT');
+                formData.append('category_id', $("#category_id").val());
+                formData.append('name', $("#name").val());
+                formData.append('price', $("#price").val());
+                if ($('#image')[0].files.length > 0) {
+                    formData.append('image', $('#image')[0].files[0]);
                 }
 
                 $.ajax({
@@ -290,16 +317,13 @@
                     url: url,
                     processData: false,
                     contentType: false,
-                    data: editFormData,
+                    data: formData,
                     success: function(response) {
-                        $('#editProductForm').trigger("reset");
-                        $('.image-preview img').attr('src',
-                            '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
                         $('#loader').hide();
                         $('.overlay').hide();
-                        $('#editValidationErrors').hide();
-                        $('#editProductForm button').prop('disabled', false);
-                        $('#editProductModal').modal('hide');
+                        $('#validationErrors').hide();
+                        $('#productForm button').prop('disabled', false);
+                        $('#productModal').modal('hide');
 
                         table.draw();
 
@@ -314,7 +338,7 @@
                     error: function(xhr, status, error) {
                         $('#loader').hide();
                         $('.overlay').hide();
-                        $('#editProductForm button').prop('disabled', false);
+                        $('#productForm button').prop('disabled', false);
 
                         if (xhr.status === 422) {
                             var errors = xhr.responseJSON.errors;
@@ -324,49 +348,56 @@
                                 errorMessage += value[0] + '<br>';
                             });
 
-                            $('#editValidationErrors').html(errorMessage);
-                            $('#editValidationErrors').show()
+                            $('#validationErrors').html(errorMessage);
+                            $('#validationErrors').show()
                         }
                     }
                 });
             });
 
             // delete product
-            $('body').on('click', '.deleteProduct', function() {
+            $('body').on('click', '.deleteProduct', function(e) {
                 var productId = $(this).data('id');
-                $('#deleteProductId').val(productId);
-                $('#deleteProductModal').modal('show');
-            });
-
-            $('#deleteProductForm').submit(function(e) {
+                SwalDelete(productId);
                 e.preventDefault();
-
-                productId = $('#deleteProductId').val();
-                var url = "{{ route('admin.product.destroy', ':product') }}";
-                var url = url.replace(':product', productId);
-
-                $.ajax({
-                    url: url,
-                    type: 'DELETE',
-                    data: {
-                        id: productId,
-                    },
-                    success: function(response) {
-                        $('#deleteProductModal').modal('hide');
-                        table.draw();
-
-                        Swal.fire({
-                            position: "center",
-                            icon: "success",
-                            title: "Product Deleted",
-                            showConfirmButton: false,
-                            timer: 1500
-                        });
-                    },
-                });
             });
 
+            function SwalDelete(productId) {
+                Swal.fire({
+                    title: "Are you sure?",
+                    text: "You won't be able to revert this!",
+                    icon: "warning",
+                    showCancelButton: true,
+                    confirmButtonColor: "#3085d6",
+                    cancelButtonColor: "#d33",
+                    confirmButtonText: "Yes, delete it!"
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        var url = "{{ route('admin.product.destroy', ':product') }}";
+                        var url = url.replace(':product', productId);
 
+                        $.ajax({
+                            url: url,
+                            type: 'DELETE',
+                            data: {
+                                id: productId,
+                            },
+                            success: function(response) {
+                                table.draw();
+
+                                Swal.fire({
+                                    position: "center",
+                                    icon: "success",
+                                    title: "Category Deleted",
+                                    showConfirmButton: false,
+                                    timer: 1500
+                                });
+                            },
+                        });
+                    }
+                });
+            }
+            
         });
     </script>
 @endpush
