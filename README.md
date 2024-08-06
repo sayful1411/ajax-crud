@@ -13,12 +13,11 @@ The is simple a product curd project using ajax
 
 > step 1: clone repo 
 
-    https://github.com/sayful1411/exam
-
+    git clone https://github.com/sayful1411/ajax-crud.git
 > step 2: go to barta
 
 ```bash
-  cd exam
+  cd ajax-crud
   ``` 
   
 >  step 3: edit .env.example to .env
