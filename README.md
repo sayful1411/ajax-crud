@@ -1,48 +1,49 @@
 
 # AJAX PROJECT
 
-The is simple a product curd project using ajax
+This is a simple product curd project using Ajax
 
-# Admin Authenticate -
+# Admin Login -
 
 >    email: admin@gmail.com
 
 >password: password
 
-# How you setup and run this project -
+# How you set and run this project -
 
-> step 1: clone repo 
-
-    git clone https://github.com/sayful1411/ajax-crud.git
-> step 2: go to barta
+> Step 1: clone repo 
 
 ```bash
-  cd ajax-crud
-  ``` 
+git clone https://github.com/sayful1411/ajax-crud.git && cd ajax-crud
+```
   
->  step 3: edit .env.example to .env
+> Step 2: create .env
+
+```bash
+cp .env.example .env
+```
    
-> step 4: run composer install
+> Step 3: run composer install
 
 ```bash
-  composer install
-  ``` 
+composer install
+``` 
   
-  > step 5: generate a new key
+> Step 4: generate a new key
   
 ```bash
-  php artisan key:generate
-  ``` 
-  
-    
-  >  step 6: run migration 
+php artisan key:generate
+``` 
+ 
+>  Step 5: run migration
+> (I used SQLite database. It will ask a prompt to create SQLite database)
 
 ```bash
-  php artisan migrate --seed (I am used sqlite database. It will ask a prompt to create sqlite database)
-  ``` 
+php artisan migrate --seed 
+``` 
   
-  >  step 7: run project
+>  Step 6: run project
   
 ```bash
-  php artisan serve
-  ```
+php artisan serve
+```
