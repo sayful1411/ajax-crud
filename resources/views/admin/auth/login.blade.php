@@ -31,7 +31,7 @@
                                         <div class="form-group mb-3">
                                             <label for="email">Email address</label>
                                             <input type="email" class="form-control" id="email" name="email"
-                                                value="{{ old('email') }}" placeholder="Enter email">
+                                                value="admin@gmail.com" placeholder="Enter email">
                                             @error('email')
                                                 <div class="text-danger">{{ $message }}</div>
                                             @enderror
@@ -39,14 +39,14 @@
                                         <div class="form-group mb-3">
                                             <label for="password">Password</label>
                                             <input type="password" class="form-control" id="password" name="password"
-                                                placeholder="Password">
+                                                value="password" placeholder="Password">
                                             @error('password')
                                                 <div class="text-danger">{{ $message }}</div>
                                             @enderror
                                         </div>
                                         <div class="form-group mb-3 form-check">
                                             <input type="checkbox" name="remember" class="form-check-input"
-                                                id="remember">
+                                                id="remember" checked>
                                             <label class="form-check-label" for="remember">Remember me</label>
                                         </div>
                                         <button type="submit" class="btn btn-primary">Login</button>
