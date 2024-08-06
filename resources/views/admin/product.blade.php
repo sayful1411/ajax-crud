@@ -205,6 +205,7 @@
                     '{{ asset(\App\Models\Product::PLACEHOLDER_IMAGE_PATH) }}');
                 getCategoryList();
                 $('#createBtn').show();
+                $('#updateBtn').hide();
                 $('#productModal').modal('show');
             });
 
@@ -287,6 +288,7 @@
                         $('#price').val(data.price);
                         $('.image-preview img').attr('src', data.image_url);
                         $('#updateBtn').show();
+                        $('#createBtn').hide();
                         $('#productModal').modal('show');
                     },
                 });
