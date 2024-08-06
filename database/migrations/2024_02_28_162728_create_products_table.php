@@ -16,8 +16,8 @@ return new class extends Migration
             $table->foreignId('category_id')->constrained()->cascadeOnDelete();
             $table->string('name')->unique();
             $table->string('slug');
-            $table->bigInteger('price');
-            $table->integer('created_by');
+            $table->decimal('price', 10, 2);
+            $table->string('created_by');
             $table->timestamps();
         });
     }
